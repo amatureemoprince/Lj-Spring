@@ -41,6 +41,23 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
         return createBean(beanName, beanDefinition);
     }
 
+    @Override
+    public Object getBean(String beanName, Object[] args) throws BeansException {
+        // 1. 尝试从单例缓存中获取
+        Object bean = getSingleton(beanName);
+
+        // 2. 如果已经存在，直接返回（单例模式的体现）
+        if (bean != null) {
+            return bean;
+        }
+
+        // 3. 如果缓存没有，则获取该 Bean 的定义信息（图纸）
+        BeanDefinition beanDefinition = getBeanDefinition(beanName);
+
+        // 4. 调用 createBean 开启生命周期，并将 args 传进去用于实例化
+        return createBean(beanName, beanDefinition, args);
+    }
+
     /**
      * 获取指定名称的 Bean 定义信息。
      * 这是一个抽象方法，交由子类（如 DefaultListableBeanFactory）去实现具体的查找逻辑。
@@ -59,5 +76,16 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
      * @throws BeansException 创建失败时抛出
      */
     protected abstract Object createBean(String beanName, BeanDefinition beanDefinition) throws BeansException;
+
+    /**
+     * 创建 Bean 实例的抽象协议。
+     * 由具体的自动化装配 Bean 工厂（如 AbstractAutowireCapableBeanFactory）负责实现。
+     * @param beanName       createBean(...args)
+     * @param beanDefinition Bean 的定义信息（包含 Class、属性等图纸信息）
+     * @param args           显式指定的构造函数参数。如果是无参创建，该参数为 null。
+     * @return 创建完成并初始化后的完整 Bean 对象
+     * @throws BeansException 如果实例化、属性填充或初始化过程中发生错误
+     */
+    protected abstract Object createBean(String beanName, BeanDefinition beanDefinition, Object[] args) throws BeansException;
 
 }

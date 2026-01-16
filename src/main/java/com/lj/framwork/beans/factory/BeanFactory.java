@@ -13,4 +13,7 @@ public interface BeanFactory {
 
     Object getBean(String beanName) throws BeansException;
 
+    // AbstractAutowireCapableBeanFactory.java里无法创建含参构造方法，所有设计一个getBean可以在获取Bean的同时获取对应的参数
+    Object getBean(String beanName, Object ... args) throws BeansException;
+
 }
